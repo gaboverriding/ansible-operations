@@ -3,6 +3,7 @@
   hosts: "{{ maquinas | default('localhost')}}"
   vars: 
     librerias: "{{ lib }}" 
+  gather_facts: no
   tasks:
     - name: incluye las variables
       include_vars:
