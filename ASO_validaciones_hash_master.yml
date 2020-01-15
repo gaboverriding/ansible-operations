@@ -1,0 +1,41 @@
+---
+- name: playbook que prueba el manejo de variables de archivo
+  hosts: "{{ maquinas | default('localhost')}}"
+  vars: 
+    librerias: "{{ lib }}" 
+  tasks:
+    - name: incluye las variables
+      include_vars:
+        file: "{{ librerias }}"
+        name: librerias_sha
+    
+    - name: debugueando
+      debug:
+        var: librerias_sha
+      tags: debugging
+
+    - name: debugueando como diccionario
+      debug:
+        msg: "{{item.key}}: {{item.value}}"
+      with_dict: "{{ librerias_sha }}"
+      tags: debugging
+
+    - name: validando la existencia
+      stat:
+        path: "{{ item.key}}"
+        checksum_algorithm: sha256
+      register: resultado_validacion
+      with_dict: "{{ librerias_sha }}"
+
+    - name: debugueando saldida stat
+      debug:
+        var: resultado_validacion
+      tags: debugging
+    
+    - name: comparando valores
+      debug:
+        msg: "Archivo diferente o no encontrado: {{ item.item.key }}"
+      when: not(item.stat.exists == true and item.item.value == item.stat.checksum)
+      with_items: "{{ resultado_validacion.results }}" 
+      failed_when: not(item.stat.exists == true and item.item.value == item.stat.checksum)
+...

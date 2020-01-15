@@ -1,0 +1,13 @@
+---
+-
+ name: Genera las llaves de ssh
+ hosts: "{{ equipos }}"
+ tasks:
+   - 
+     name: Establece la llave ssh publica en los servidores 
+     authorized_key:
+       user: mb67067
+       state: present
+       key: "{{ lookup('file', '/home/gabo/.ssh/id_rsa.pub') }}"
+       #validate_certs: False
+...
